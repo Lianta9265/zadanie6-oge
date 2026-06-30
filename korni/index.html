@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ОГЭ. Задание 6. Правописание корней</title>
+  <style>
+    :root {
+      --bg: #081d2b;
+      --panel: #0f3042;
+      --panel-soft: #123a4d;
+      --line: rgba(180, 226, 230, 0.18);
+      --text: #f5fbfb;
+      --muted: #b7d0d4;
+      --teal: #40d0c7;
+      --teal-dark: #123f45;
+      --amber: #f2b65d;
+      --amber-dark: #4e3718;
+      --red: #ff8b86;
+      --red-dark: #492328;
+      --green: #86e3b2;
+      --green-dark: #183f33;
+      --shadow: 0 18px 55px rgba(0, 0, 0, 0.28);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(64, 208, 199, 0.12), transparent 28%),
+        radial-gradient(circle at 92% 12%, rgba(242, 182, 93, 0.10), transparent 24%),
+        linear-gradient(145deg, #061721 0%, var(--bg) 60%, #092534 100%);
+      color: var(--text);
+      font-family: Arial, "Segoe UI", sans-serif;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .app {
+      width: min(1800px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 18px 22px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 20px;
+      padding: 2px 4px 0;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--teal);
+      font-size: clamp(12px, 1vw, 16px);
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 26px;
+      height: 3px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--teal), var(--amber));
+    }
+
+    h1 {
+      margin: 5px 0 3px;
+      font-size: clamp(24px, 2.2vw, 42px);
+      line-height: 1;
+    }
+
+    .instruction {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(13px, 1.05vw, 17px);
+      line-height: 1.35;
+    }
+
+    .score-panel {
+      display: flex;
+      align-items: stretch;
+      gap: 8px;
+    }
+
+    .score-box {
+      min-width: 112px;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(15, 48, 66, 0.82);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .score-box span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .score-box strong {
+      display: block;
+      margin-top: 2px;
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .score-box.points strong {
+      color: var(--green);
+    }
+
+    .score-box.mistakes strong {
+      color: var(--red);
+    }
+    .score-box strong span {
+      font: inherit;
+      color: inherit;
+    }
+
+
+    .slide-nav {
+      display: grid;
+      grid-template-columns: repeat(10, minmax(42px, 1fr));
+      gap: 7px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: rgba(9, 33, 47, 0.8);
+    }
+
+    .slide-tab {
+      position: relative;
+      min-height: 38px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.055);
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: 800;
+      transition: 0.18s ease;
+    }
+
+    .slide-tab:hover {
+      border-color: rgba(64, 208, 199, 0.45);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    .slide-tab.active {
+      background: var(--teal);
+      color: #062229;
+      border-color: var(--teal);
+      box-shadow: 0 8px 22px rgba(64, 208, 199, 0.24);
+    }
+
+    .slide-tab.complete::after {
+      content: "✓";
+      position: absolute;
+      right: 6px;
+      top: 4px;
+      font-size: 11px;
+      color: var(--green);
+    }
+
+    .slide-tab.active.complete::after {
+      color: #062229;
+    }
+
+    .task-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-rows: repeat(4, minmax(118px, 1fr));
+      gap: 10px;
+      min-height: 0;
+    }
+
+    .task-card {
+      position: relative;
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr);
+      grid-template-rows: 1fr auto auto;
+      column-gap: 11px;
+      row-gap: 7px;
+      padding: 12px 14px 10px 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.035), transparent 55%),
+        rgba(15, 48, 66, 0.92);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+      overflow: hidden;
+      transition: border-color 0.18s ease, transform 0.18s ease, background 0.18s ease;
+    }
+
+    .task-card:hover {
+      border-color: rgba(64, 208, 199, 0.28);
+    }
+
+    .task-card.solved {
+      border-color: rgba(134, 227, 178, 0.5);
+      background:
+        linear-gradient(135deg, rgba(134, 227, 178, 0.07), transparent 55%),
+        rgba(15, 48, 66, 0.95);
+    }
+
+    .task-card.shake {
+      animation: shake 0.28s ease;
+      border-color: rgba(255, 139, 134, 0.7);
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+
+    .task-number {
+      grid-row: 1 / span 3;
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: rgba(64, 208, 199, 0.12);
+      color: var(--teal);
+      font-size: 16px;
+      font-weight: 900;
+      border: 1px solid rgba(64, 208, 199, 0.18);
+    }
+
+    .task-card.solved .task-number {
+      color: var(--green);
+      background: rgba(134, 227, 178, 0.12);
+      border-color: rgba(134, 227, 178, 0.24);
+    }
+
+    .task-text {
+      align-self: center;
+      padding: 1px 2px;
+      font-size: clamp(13px, 1.02vw, 17px);
+      line-height: 1.34;
+      font-weight: 600;
+      border-radius: 8px;
+    }
+
+    .task-text.reason-mode {
+      outline: 2px dashed rgba(242, 182, 93, 0.65);
+      outline-offset: 5px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .task-text.reason-mode * {
+      cursor: pointer;
+    }
+
+    .error-fragment {
+      border-radius: 5px;
+    }
+
+    .task-text.reason-mode .error-fragment {
+      cursor: pointer;
+    }
+
+    .task-card.solved .error-fragment.revealed {
+      padding: 1px 3px;
+      color: #fff0d6;
+      background: rgba(242, 182, 93, 0.24);
+      box-shadow: 0 0 0 1px rgba(242, 182, 93, 0.42);
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .answer-btn,
+    .reason-btn,
+    .control-btn {
+      min-height: 32px;
+      padding: 6px 13px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.055);
+      cursor: pointer;
+      font-weight: 800;
+      transition: 0.16s ease;
+    }
+
+    .answer-btn:hover:not(:disabled),
+    .control-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      border-color: rgba(64, 208, 199, 0.52);
+      background: rgba(64, 208, 199, 0.11);
+    }
+
+    .answer-btn:disabled,
+    .reason-btn:disabled,
+    .control-btn:disabled {
+      cursor: default;
+      opacity: 0.46;
+    }
+
+    .answer-btn.true {
+      color: var(--green);
+    }
+
+    .answer-btn.false {
+      color: var(--red);
+    }
+
+    .answer-btn.selected {
+      box-shadow: inset 0 0 0 2px rgba(242, 182, 93, 0.5);
+      color: var(--amber);
+    }
+
+    .reason-btn {
+      border-color: rgba(242, 182, 93, 0.56);
+      color: #211600;
+      background: var(--amber);
+      animation: glow 1.2s ease-in-out infinite alternate;
+    }
+
+    .reason-btn.active {
+      animation: none;
+      color: var(--amber);
+      background: rgba(242, 182, 93, 0.10);
+    }
+
+    @keyframes glow {
+      from {
+        box-shadow: 0 0 0 rgba(242, 182, 93, 0);
+      }
+      to {
+        box-shadow: 0 0 16px rgba(242, 182, 93, 0.48);
+      }
+    }
+
+    .feedback {
+      min-height: 18px;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.25;
+    }
+
+    .feedback.good {
+      color: var(--green);
+    }
+
+    .feedback.bad {
+      display: inline-block;
+      width: fit-content;
+      padding: 4px 9px;
+      border: 1px solid rgba(255, 139, 134, 0.58);
+      border-radius: 8px;
+      color: #ffd4d1;
+      background: rgba(255, 139, 134, 0.13);
+      font-weight: 900;
+      letter-spacing: 0.01em;
+    }
+
+    .feedback.wait {
+      color: var(--amber);
+    }
+
+    .footer {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .footer .right {
+      justify-self: end;
+    }
+
+    .footer .center {
+      display: flex;
+      gap: 8px;
+    }
+
+    .control-btn {
+      min-height: 38px;
+      padding-inline: 16px;
+      background: rgba(15, 48, 66, 0.9);
+    }
+
+    .control-btn.danger {
+      color: var(--red);
+      border-color: rgba(255, 139, 134, 0.28);
+    }
+
+    .slide-label {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .reset-toast {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      z-index: 1000;
+      transform: translate(-50%, 18px);
+      padding: 10px 18px;
+      border: 1px solid rgba(64, 208, 199, 0.45);
+      border-radius: 12px;
+      color: #eaffff;
+      background: rgba(7, 34, 45, 0.96);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.34);
+      font-weight: 800;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.2s ease;
+    }
+
+    .reset-toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 1050px) {
+      .app {
+        padding: 14px;
+      }
+
+      .topbar {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .score-panel {
+        justify-content: flex-start;
+      }
+
+      .score-box {
+        min-width: 100px;
+      }
+
+      .task-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: none;
+      }
+
+      .task-card {
+        min-height: 142px;
+      }
+    }
+
+    @media (max-width: 650px) {
+      .slide-nav {
+        grid-template-columns: repeat(5, 1fr);
+      }
+
+      .score-panel {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .score-box {
+        min-width: 0;
+        padding-inline: 8px;
+      }
+
+      .footer {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .footer .center {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        justify-content: center;
+      }
+
+      .task-card {
+        grid-template-columns: 36px minmax(0, 1fr);
+        padding-right: 10px;
+      }
+
+      .task-number {
+        width: 33px;
+        height: 33px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">ОГЭ · задание 6</div>
+        <h1>Правописание корней</h1>
+        <p class="instruction">
+          Определи, верно ли объяснение. Когда загорится «Почему неверно?»,
+          сразу нажми в тексте на ошибочную часть формулировки.
+        </p>
+      </div>
+
+      <div class="score-panel" aria-label="Результаты текущего слайда">
+        <div class="score-box">
+          <span>Слайд</span>
+          <strong id="slideCounter">1 / 10</strong>
+        </div>
+        <div class="score-box points">
+          <span>Баллы</span>
+          <strong><span id="points">0</span> / 8</strong>
+        </div>
+        <div class="score-box mistakes">
+          <span>Ошибки</span>
+          <strong id="mistakes">0</strong>
+        </div>
+      </div>
+    </header>
+
+    <nav class="slide-nav" id="slideNav" aria-label="Выбор слайда"></nav>
+
+    <main class="task-grid" id="taskGrid"></main>
+
+    <footer class="footer">
+      <button class="control-btn" id="prevBtn">← Предыдущий</button>
+
+      <div class="center">
+        <span class="slide-label" id="rangeLabel">Задания 1–8</span>
+        <button type="button" class="control-btn danger" id="resetSlideBtn">Сбросить слайд</button>
+        <button type="button" class="control-btn danger" id="resetAllBtn">Сбросить всё</button>
+      </div>
+
+      <button class="control-btn right" id="nextBtn">Следующий →</button>
+    </footer>
+  </div>
+
+  <div class="reset-toast" id="resetToast" role="status" aria-live="polite"></div>
+
+  <script>
+    const TASKS = [{"id": 1, "correct": false, "before": "СКАКАТЬ – написание безударной чередующейся гласной в корне зависит ", "error": "от суффикса -А-", "after": "."}, {"id": 2, "correct": false, "before": "БЛЕСТИТ – написание безударной чередующейся гласной в корне зависит ", "error": "от последующих согласных", "after": "."}, {"id": 3, "correct": false, "before": "УКРОЩАТЬ (животных) – в корне слова пишется ", "error": "непроверяемая", "after": " гласная."}, {"id": 4, "correct": true, "before": "НЕНАСТНЫЙ – непроизносимый согласный в корне слова проверяется словом ненастье, в котором он слышится отчётливо.", "error": "", "after": ""}, {"id": 5, "correct": true, "before": "ПРИМЕРЯТЬ (платье) – написание безударной гласной в корне проверяется подбором однокоренного слова, в котором проверяемый гласный находится в ударном слоге.", "error": "", "after": ""}, {"id": 6, "correct": false, "before": "ПОТЕРЯТЬ – написание безударной ", "error": "чередующейся", "after": " гласной в корне определяется местом ударения."}, {"id": 7, "correct": true, "before": "ИЗВЕСТНЫЙ – непроизносимая согласная в корне слова проверяется словом известен.", "error": "", "after": ""}, {"id": 8, "correct": false, "before": "ЗАГОРАТЬ – написание безударной чередующейся гласной в корне определяется ", "error": "наличием суффикса -А-", "after": "."}, {"id": 9, "correct": true, "before": "РАРИТЕТ – в корне слова пишутся непроверяемые безударные гласные.", "error": "", "after": ""}, {"id": 10, "correct": false, "before": "ПРИЛАГАТЕЛЬНОЕ – написание безударной чередующейся гласной в корне проверяется ", "error": "подбором однокоренного слова, в котором этот гласный звук находится в ударном слоге", "after": "."}, {"id": 11, "correct": false, "before": "ЗАПИРАТЬ (на замок) – написание безударной гласной в корне проверяется ", "error": "подбором однокоренного слова, в котором гласный звук находится под ударением", "after": "."}, {"id": 12, "correct": false, "before": "ПРОГЛОТИТЬ – в корне слова пишется ", "error": "непроверяемая", "after": " безударная гласная."}, {"id": 13, "correct": false, "before": "ЛОГОТИП – написание безударной ", "error": "чередующейся", "after": " гласной в корне проверяется подбором однокоренного слова, в котором гласный звук находится под ударением."}, {"id": 14, "correct": false, "before": "КАРАВАЙ – правописание безударных гласных в корне слова проверяется ", "error": "подбором однокоренных слов, в которых гласный звук находится под ударением", "after": "."}, {"id": 15, "correct": false, "before": "ОЧАРОВАНИЕ – в корне слова пишется ", "error": "непроверяемая", "after": " безударная гласная."}, {"id": 16, "correct": true, "before": "ЦЫПЛЁНОК – в корне слова написание буквы Ы после Ц не определяется правилом (является исключением).", "error": "", "after": ""}, {"id": 17, "correct": false, "before": "РАСТАЯТЬ – ", "error": "в корне слова с чередующейся гласной", "after": " перед -СТ пишется буква А."}, {"id": 18, "correct": true, "before": "ПРИМИРЯТЬ (друзей) – написание безударной гласной в корне слова проверяется подбором однокоренного слова, в котором этот гласный звук находится в ударном слоге.", "error": "", "after": ""}, {"id": 19, "correct": true, "before": "ЗАГОРЕЛЫЙ – в корне слова с чередующейся гласной без ударения пишется буква О.", "error": "", "after": ""}, {"id": 20, "correct": false, "before": "БЛЕСТЯЩИЙ – написание безударной чередующейся гласной в корне слова определяется ", "error": "сочетанием последующих согласных СТ", "after": "."}, {"id": 21, "correct": true, "before": "ВИНЕГРЕТ – в корне слова две непроверяемые безударные гласные.", "error": "", "after": ""}, {"id": 22, "correct": false, "before": "ЗАГОРЕТЬ – написание безударной чередующейся гласной в корне слова определяется его ", "error": "лексическим значением", "after": "."}, {"id": 23, "correct": true, "before": "ВЕТЕРАН – две безударные гласные корня непроверяемые.", "error": "", "after": ""}, {"id": 24, "correct": true, "before": "РАСТУЩИЙ – в корне слова с чередующейся гласной перед -СТ- пишется буква А.", "error": "", "after": ""}, {"id": 25, "correct": false, "before": "ЗАГОРЕЛЫЙ – безударную гласную в корне слова ", "error": "можно проверить словом горы", "after": "."}, {"id": 26, "correct": true, "before": "БЕЗМОЛВСТВОВАТЬ – написание непроизносимой согласной в корне проверяется подбором однокоренного слова молва, в котором согласный звучит отчётливо.", "error": "", "after": ""}, {"id": 27, "correct": false, "before": "ЗАМИРАТЬ (от восторга) – написание безударной чередующейся гласной в корне зависит от ", "error": "лексического значения слова", "after": "."}, {"id": 28, "correct": false, "before": "УХАЖЁР – ", "error": "в корне", "after": " имени существительного после шипящего согласного под ударением пишется буква Ё."}, {"id": 29, "correct": true, "before": "ДИСЦИПЛИНА – в корне слова пишутся непроверяемые безударные гласные.", "error": "", "after": ""}, {"id": 30, "correct": true, "before": "ПОДВЕЗТИ (на машине) – написание в корне слова буквы, обозначающей парный по глухости – звонкости согласный звук, проверяется формой подвезу.", "error": "", "after": ""}, {"id": 31, "correct": true, "before": "НЕУВЯДАЕМЫЙ – написание безударной гласной в корне слова проверяется подбором однокоренного слова, в котором проверяемая гласная находится в ударном слоге.", "error": "", "after": ""}, {"id": 32, "correct": true, "before": "КОСТНЫЙ (мозг) – написание непроизносимой согласной в корне проверяется подбором однокоренного слова кость, в котором согласный звучит отчётливо.", "error": "", "after": ""}, {"id": 33, "correct": false, "before": "РАЗОБЩЁННЫЙ – в корне слова пишется ", "error": "непроверяемая", "after": " гласная."}, {"id": 34, "correct": false, "before": "ЦИРК – буква И обозначает ", "error": "мягкость предшествующего согласного", "after": "."}, {"id": 35, "correct": true, "before": "ЗАГОРЕВШИЙ – в корне слова с чередующейся гласной без ударения пишется буква О.", "error": "", "after": ""}, {"id": 36, "correct": true, "before": "МЕСТНОСТЬ – непроизносимый согласный в корне слова проверяется словом место, в котором он слышится отчётливо.", "error": "", "after": ""}, {"id": 37, "correct": true, "before": "ПРИМИТИВНЫЙ – в корне слова есть непроверяемые безударные гласные.", "error": "", "after": ""}, {"id": 38, "correct": false, "before": "ПРИСЛОНИТЬСЯ – в корне слова с ", "error": "чередующейся", "after": " гласной без ударения пишется буква О."}, {"id": 39, "correct": false, "before": "БЛИСТАТЕЛЬНЫЙ – написание безударной чередующейся гласной в корне слова определяется ", "error": "сочетанием последующих согласных СТ", "after": "."}, {"id": 40, "correct": false, "before": "БЛИСТАЮЩИЙ – написание безударной чередующейся гласной в корне слова зависит от его ", "error": "лексического значения", "after": "."}, {"id": 41, "correct": false, "before": "ЗАТВЕРДЕВШИЙ – в корне слова пишется ", "error": "непроверяемая", "after": " безударная гласная."}, {"id": 42, "correct": true, "before": "ЗАНИМАТЬСЯ – написание безударной чередующейся гласной в корне определяется наличием суффикса -А-.", "error": "", "after": ""}, {"id": 43, "correct": true, "before": "ПРЕПОДАВАТЕЛЬ – написание безударной гласной в корне слова проверяется подбором однокоренного слова, в котором гласный звук находится в ударном слоге.", "error": "", "after": ""}, {"id": 44, "correct": false, "before": "ПРОМОКАТЕЛЬНАЯ (бумага) – написание безударной чередующейся гласной в корне зависит от ", "error": "суффикса -А-", "after": "."}, {"id": 45, "correct": false, "before": "КОСИЧКИ – написание безударной ", "error": "чередующейся", "after": " гласной в корне слова зависит от лексического значения."}, {"id": 46, "correct": false, "before": "ИЗЛОЖЕНИЕ – написание безударной чередующейся гласной в корне проверяется ", "error": "ударением", "after": "."}, {"id": 47, "correct": false, "before": "ПАЛЬТО – написание безударной гласной в корне слова проверяется ", "error": "подбором однокоренного слова, в котором гласный звук находится под ударением", "after": "."}, {"id": 48, "correct": false, "before": "ЦИТРУСОВЫЕ – буква И обозначает ", "error": "мягкость предшествующего согласного", "after": "."}, {"id": 49, "correct": false, "before": "ЗАМИРАТЬ – безударную гласную в корне ", "error": "можно проверить словом мир", "after": "."}, {"id": 50, "correct": false, "before": "СЖИГАТЬ – безударная гласная в корне слова проверяется ", "error": "формой слова, в котором гласный звук находится в ударном слоге", "after": "."}, {"id": 51, "correct": true, "before": "НЕНАСТНЫЙ – написание непроизносимой согласной в корне проверяется подбором однокоренного слова, в котором согласный звучит отчётливо.", "error": "", "after": ""}, {"id": 52, "correct": false, "before": "ПРЕДЛАГАЮТ – безударная гласная в корне слова проверяется ", "error": "подбором однокоренного слова", "after": "."}, {"id": 53, "correct": false, "before": "ОБВИНИТЬ – в корне слова пишется ", "error": "непроверяемая", "after": " гласная."}, {"id": 54, "correct": false, "before": "СНИМАТЬ (кино) – написание безударной чередующейся гласной в корне слова зависит ", "error": "от места ударения", "after": "."}, {"id": 55, "correct": false, "before": "БЛЕСТЯЩИЙ – написание безударной гласной в корне проверяется ", "error": "подбором однокоренного слова блеск, в котором проверяемый гласный находится в ударном слоге", "after": "."}, {"id": 56, "correct": true, "before": "СЖИМАТЬ (кулаки) – правописание чередующейся гласной в корне определяется наличием суффикса -А-.", "error": "", "after": ""}, {"id": 57, "correct": true, "before": "ЦИТАТА – в корне слова после Ц пишется буква И.", "error": "", "after": ""}, {"id": 58, "correct": false, "before": "ПОЖАЛЕТЬ – в корне слова пишется ", "error": "непроверяемая", "after": " безударная гласная."}, {"id": 59, "correct": false, "before": "ЦИРКУЛЬ – буква И обозначает ", "error": "мягкость предшествующего согласного", "after": "."}, {"id": 60, "correct": true, "before": "ГАЛЕРЕЯ – в корне слова пишутся непроверяемые безударные гласные.", "error": "", "after": ""}, {"id": 61, "correct": false, "before": "РАСТРЕВОЖИТЬ (воспоминаниями) – написание безударной ", "error": "чередующейся гласной в корне слова зависит от сочетания СТ", "after": "."}, {"id": 62, "correct": false, "before": "ПОКОСИЛСЯ (забор) – написание безударной ", "error": "чередующейся", "after": " гласной в корне слова зависит от лексического значения."}, {"id": 63, "correct": false, "before": "РОСКОШНЫЙ – в корне слова с ", "error": "чередующейся", "after": " гласной перед -С- пишется буква О."}, {"id": 64, "correct": true, "before": "ВОЗРАСТАТЬ – написание безударной чередующейся гласной в корне слова определяется сочетанием последующих согласных СТ.", "error": "", "after": ""}, {"id": 65, "correct": true, "before": "ЖЁЛТЫЙ – в корне слова после шипящего согласного пишется буква Ё, так как можно подобрать однокоренное слово с буквой Е.", "error": "", "after": ""}, {"id": 66, "correct": false, "before": "ВЫГОРЕЛИ (на солнце) – правописание чередующейся гласной в корне слова определяется ", "error": "лексическим значением", "after": "."}, {"id": 67, "correct": true, "before": "КОЛОРИТ – в корне слова пишутся непроверяемые гласные.", "error": "", "after": ""}, {"id": 68, "correct": true, "before": "КАПУСТНЫЙ – написание непроизносимой согласной в корне проверяется подбором однокоренного слова капуста, в котором согласный звучит отчётливо.", "error": "", "after": ""}, {"id": 69, "correct": false, "before": "УВЯДАЮТ (цветы) – в корне слова пишется ", "error": "непроверяемая", "after": " безударная гласная."}, {"id": 70, "correct": true, "before": "ВЫМОКНУТЬ (под дождём) – написание безударной чередующейся гласной в корне зависит от лексического значения слова.", "error": "", "after": ""}, {"id": 71, "correct": true, "before": "ОЧАРОВАТЕЛЬНЫЙ – написание безударной гласной в корне слова проверяется подбором однокоренного слова, в котором проверяемая гласная находится в ударном слоге.", "error": "", "after": ""}, {"id": 72, "correct": true, "before": "ПОНИМАТЬ – написание безударной чередующейся гласной в корне определяется наличием суффикса -А-.", "error": "", "after": ""}, {"id": 73, "correct": false, "before": "ПОЛАСКАТЬ (котёнка) – в корне слова пишется ", "error": "непроверяемая", "after": " гласная."}, {"id": 74, "correct": true, "before": "РАЗБИРАТЬСЯ – правописание безударной чередующейся гласной в корне слова зависит от последующего суффикса -А-.", "error": "", "after": ""}, {"id": 75, "correct": true, "before": "ОЗАРИТЬ – в корне слова с чередующейся гласной без ударения пишется буква А.", "error": "", "after": ""}, {"id": 76, "correct": false, "before": "ВЫЯВИТЬ (недочёты) – в корне слова пишется ", "error": "непроверяемая", "after": " безударная гласная."}, {"id": 77, "correct": true, "before": "РАЗРОВНЯТЬ (грядку) – написание безударной чередующейся гласной в корне зависит от лексического значения слова.", "error": "", "after": ""}, {"id": 78, "correct": false, "before": "ЗАСКОЧИТЬ – в корне слова с чередующейся гласной ", "error": "без ударения пишется буква О", "after": "."}, {"id": 79, "correct": true, "before": "ОЗАРЁННЫЕ (солнцем) – правописание чередующейся гласной в корне слова определяется местом ударения.", "error": "", "after": ""}, {"id": 80, "correct": true, "before": "ПРИКАСАТЬСЯ – написание безударной чередующейся гласной в корне зависит от суффикса -А-.", "error": "", "after": ""}];
+    const TASKS_PER_SLIDE = 8;
+    const SLIDE_COUNT = 10;
+    const STORAGE_KEY = "oge6-korni-progress-v1";
+
+    let currentSlide = 0;
+    let state = loadState();
+
+    const slideNav = document.getElementById("slideNav");
+    const taskGrid = document.getElementById("taskGrid");
+    const pointsEl = document.getElementById("points");
+    const mistakesEl = document.getElementById("mistakes");
+    const slideCounterEl = document.getElementById("slideCounter");
+    const rangeLabelEl = document.getElementById("rangeLabel");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const resetSlideBtn = document.getElementById("resetSlideBtn");
+    const resetAllBtn = document.getElementById("resetAllBtn");
+    const resetToast = document.getElementById("resetToast");
+    let resetToastTimer = null;
+
+    function freshTaskState() {
+      return {
+        done: false,
+        mistakes: 0,
+        stage: "answer",
+        reasonMode: false,
+        feedback: "",
+        feedbackType: ""
+      };
+    }
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (Array.isArray(saved) && saved.length === TASKS.length) {
+          return saved.map(item => {
+            const restored = {
+              ...freshTaskState(),
+              ...item
+            };
+            if (restored.stage === "reason" && !restored.done) {
+              restored.reasonMode = true;
+            }
+            return restored;
+          });
+        }
+      } catch (error) {
+        console.warn("Не удалось загрузить прогресс:", error);
+      }
+      return TASKS.map(freshTaskState);
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (error) {
+        console.warn("Не удалось сохранить прогресс:", error);
+      }
+    }
+
+    function slideTasks(slideIndex) {
+      const start = slideIndex * TASKS_PER_SLIDE;
+      return TASKS.slice(start, start + TASKS_PER_SLIDE);
+    }
+
+    function slideStats(slideIndex) {
+      const start = slideIndex * TASKS_PER_SLIDE;
+      const slice = state.slice(start, start + TASKS_PER_SLIDE);
+      return {
+        points: slice.filter(item => item.done).length,
+        mistakes: slice.reduce((sum, item) => sum + item.mistakes, 0)
+      };
+    }
+
+    function escapeText(value) {
+      const span = document.createElement("span");
+      span.textContent = value;
+      return span.innerHTML;
+    }
+
+    function renderNav() {
+      slideNav.innerHTML = "";
+      for (let index = 0; index < SLIDE_COUNT; index++) {
+        const stats = slideStats(index);
+        const button = document.createElement("button");
+        button.className = "slide-tab";
+        button.textContent = index + 1;
+        button.title = `Слайд ${index + 1}: ${stats.points} из 8`;
+        if (index === currentSlide) button.classList.add("active");
+        if (stats.points === TASKS_PER_SLIDE) button.classList.add("complete");
+        button.addEventListener("click", () => {
+          currentSlide = index;
+          render();
+        });
+        slideNav.appendChild(button);
+      }
+    }
+
+    function makeTaskText(task, taskState) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "task-text";
+      wrapper.setAttribute("role", "group");
+      wrapper.setAttribute("aria-label", `Задание ${task.id}`);
+
+      if (taskState.reasonMode && !taskState.done) {
+        wrapper.classList.add("reason-mode");
+        wrapper.title = "Нажми на ошибочную часть объяснения";
+      }
+
+      wrapper.append(document.createTextNode(task.before));
+
+      if (!task.correct) {
+        const errorSpan = document.createElement("span");
+        errorSpan.className = "error-fragment";
+        if (taskState.done) errorSpan.classList.add("revealed");
+        errorSpan.textContent = task.error;
+        wrapper.append(errorSpan);
+      }
+
+      wrapper.append(document.createTextNode(task.after));
+
+      if (!task.correct) {
+        wrapper.addEventListener("click", event => {
+          const taskIndex = task.id - 1;
+          const current = state[taskIndex];
+
+          if (current.done || current.stage !== "reason" || !current.reasonMode) {
+            return;
+          }
+
+          const clickedError = event.target.classList &&
+            event.target.classList.contains("error-fragment");
+
+          if (clickedError) {
+            completeTask(taskIndex,
+              "Задание засчитано.");
+          } else {
+            registerMistake(taskIndex,
+              "Задание не засчитано.");
+          }
+        });
+      }
+
+      return wrapper;
+    }
+
+    function renderTasks() {
+      taskGrid.innerHTML = "";
+
+      slideTasks(currentSlide).forEach(task => {
+        const taskIndex = task.id - 1;
+        const taskState = state[taskIndex];
+
+        const card = document.createElement("section");
+        card.className = "task-card";
+        if (taskState.done) card.classList.add("solved");
+
+        const number = document.createElement("div");
+        number.className = "task-number";
+        number.textContent = task.id;
+
+        const text = makeTaskText(task, taskState);
+
+        const buttonRow = document.createElement("div");
+        buttonRow.className = "button-row";
+
+        const trueButton = document.createElement("button");
+        trueButton.className = "answer-btn true";
+        trueButton.textContent = "Верно";
+        trueButton.disabled = taskState.done || taskState.stage === "reason";
+        trueButton.addEventListener("click", () => judgeTask(taskIndex, true, card));
+
+        const falseButton = document.createElement("button");
+        falseButton.className = "answer-btn false";
+        falseButton.textContent = "Неверно";
+        falseButton.disabled = taskState.done || taskState.stage === "reason";
+        if (taskState.stage === "reason") falseButton.classList.add("selected");
+        falseButton.addEventListener("click", () => judgeTask(taskIndex, false, card));
+
+        buttonRow.append(trueButton, falseButton);
+
+        if (!task.correct && taskState.stage === "reason" && !taskState.done) {
+          const reasonButton = document.createElement("button");
+          reasonButton.className = "reason-btn";
+          reasonButton.textContent = "Почему неверно?";
+          reasonButton.title = "Нажми в тексте на ошибочную часть объяснения";
+
+          reasonButton.addEventListener("click", () => {
+            state[taskIndex].reasonMode = true;
+            state[taskIndex].feedback =
+              "Нажми в тексте на ошибочную часть объяснения.";
+            state[taskIndex].feedbackType = "wait";
+            saveState();
+            render();
+          });
+
+          buttonRow.append(reasonButton);
+        }
+
+        const feedback = document.createElement("div");
+        feedback.className = "feedback";
+        if (taskState.feedbackType) feedback.classList.add(taskState.feedbackType);
+        feedback.textContent = taskState.feedback;
+
+        card.append(number, text, buttonRow, feedback);
+        taskGrid.appendChild(card);
+      });
+    }
+
+    function judgeTask(taskIndex, answer, card) {
+      const task = TASKS[taskIndex];
+      const taskState = state[taskIndex];
+
+      if (taskState.done || taskState.stage === "reason") return;
+
+      if (answer !== task.correct) {
+        registerMistake(taskIndex, "Задание не засчитано.", card);
+        return;
+      }
+
+      if (task.correct) {
+        completeTask(taskIndex, "Задание засчитано.");
+      } else {
+        taskState.stage = "reason";
+        taskState.reasonMode = true;
+        taskState.feedback =
+          "Нажми в тексте на ошибочную часть объяснения.";
+        taskState.feedbackType = "wait";
+        saveState();
+        render();
+      }
+    }
+
+    function completeTask(taskIndex, message) {
+      const taskState = state[taskIndex];
+      taskState.done = true;
+      taskState.stage = "done";
+      taskState.reasonMode = false;
+      taskState.feedback = message;
+      taskState.feedbackType = "good";
+      saveState();
+      render();
+    }
+
+    function registerMistake(taskIndex, message, card = null) {
+      const taskState = state[taskIndex];
+      taskState.mistakes += 1;
+      taskState.feedback = message;
+      taskState.feedbackType = "bad";
+      saveState();
+
+      if (card) {
+        card.classList.remove("shake");
+        void card.offsetWidth;
+        card.classList.add("shake");
+        setTimeout(() => render(), 290);
+      } else {
+        render();
+      }
+    }
+
+    function renderScore() {
+      const stats = slideStats(currentSlide);
+      pointsEl.textContent = stats.points;
+      mistakesEl.textContent = stats.mistakes;
+      slideCounterEl.textContent = `${currentSlide + 1} / ${SLIDE_COUNT}`;
+
+      const first = currentSlide * TASKS_PER_SLIDE + 1;
+      const last = first + TASKS_PER_SLIDE - 1;
+      rangeLabelEl.textContent = `Задания ${first}–${last}`;
+
+      prevBtn.disabled = currentSlide === 0;
+      nextBtn.disabled = currentSlide === SLIDE_COUNT - 1;
+    }
+
+    function render() {
+      renderNav();
+      renderTasks();
+      renderScore();
+    }
+
+    function showResetToast(message) {
+      resetToast.textContent = message;
+      resetToast.classList.add("show");
+      clearTimeout(resetToastTimer);
+      resetToastTimer = setTimeout(() => {
+        resetToast.classList.remove("show");
+      }, 1800);
+    }
+
+    prevBtn.addEventListener("click", () => {
+      if (currentSlide > 0) {
+        currentSlide -= 1;
+        render();
+      }
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if (currentSlide < SLIDE_COUNT - 1) {
+        currentSlide += 1;
+        render();
+      }
+    });
+
+    resetSlideBtn.addEventListener("click", () => {
+      const start = currentSlide * TASKS_PER_SLIDE;
+      const end = Math.min(start + TASKS_PER_SLIDE, state.length);
+
+      for (let index = start; index < end; index++) {
+        state[index] = freshTaskState();
+      }
+
+      saveState();
+      render();
+      showResetToast(`Слайд ${currentSlide + 1} сброшен. Можно выполнить задания заново.`);
+    });
+
+    resetAllBtn.addEventListener("click", () => {
+      state = TASKS.map(() => freshTaskState());
+      currentSlide = 0;
+
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (error) {
+        console.warn("Не удалось очистить сохранённый прогресс:", error);
+      }
+
+      saveState();
+      render();
+      showResetToast("Все десять слайдов сброшены.");
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "ArrowLeft" && currentSlide > 0) {
+        currentSlide -= 1;
+        render();
+      }
+      if (event.key === "ArrowRight" && currentSlide < SLIDE_COUNT - 1) {
+        currentSlide += 1;
+        render();
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
