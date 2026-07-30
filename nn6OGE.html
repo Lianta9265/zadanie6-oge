@@ -132,15 +132,15 @@
     .score-box.mistakes strong {
       color: var(--red);
     }
-
     .score-box strong span {
       font: inherit;
       color: inherit;
     }
 
+
     .slide-nav {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      grid-template-columns: repeat(10, minmax(42px, 1fr));
       gap: 7px;
       padding: 8px;
       border: 1px solid var(--line);
@@ -190,7 +190,7 @@
       flex: 1;
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      grid-auto-rows: minmax(118px, 1fr);
+      grid-template-rows: repeat(4, minmax(118px, 1fr));
       gap: 10px;
       min-height: 0;
     }
@@ -443,6 +443,170 @@
       transform: translate(-50%, 0);
     }
 
+    .score-box.mistakes {
+      cursor: pointer;
+      transition: 0.18s ease;
+      user-select: none;
+    }
+
+    .score-box.mistakes:hover,
+    .score-box.mistakes:focus-visible {
+      border-color: rgba(255, 139, 134, 0.58);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .score-box.mistakes span::after {
+      content: "  ↗";
+      font-size: 11px;
+    }
+
+    .journal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 1200;
+      background: rgba(1, 12, 18, 0.62);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .journal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .journal-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      z-index: 1201;
+      width: min(560px, 94vw);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #092635;
+      border-left: 1px solid var(--line);
+      box-shadow: -20px 0 55px rgba(0, 0, 0, 0.38);
+      transform: translateX(102%);
+      transition: transform 0.22s ease;
+    }
+
+    .journal-panel.open {
+      transform: translateX(0);
+    }
+
+    .journal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 18px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .journal-header h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .journal-header p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .journal-actions {
+      display: flex;
+      gap: 7px;
+      flex-shrink: 0;
+    }
+
+    .journal-close,
+    .journal-download {
+      min-height: 36px;
+      padding: 7px 11px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.055);
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .journal-close {
+      width: 38px;
+      padding: 0;
+      font-size: 22px;
+    }
+
+    .journal-body {
+      flex: 1;
+      overflow: auto;
+      padding: 14px 18px 28px;
+    }
+
+    .journal-empty {
+      margin: 36px auto;
+      max-width: 360px;
+      padding: 20px;
+      border: 1px dashed rgba(134, 227, 178, 0.42);
+      border-radius: 14px;
+      color: var(--green);
+      text-align: center;
+      line-height: 1.45;
+    }
+
+    .journal-slide-title {
+      margin: 18px 0 9px;
+      color: var(--teal);
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .journal-item {
+      margin-bottom: 12px;
+      padding: 13px 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(15, 48, 66, 0.92);
+    }
+
+    .journal-task-title {
+      margin-bottom: 7px;
+      color: var(--amber);
+      font-weight: 900;
+    }
+
+    .journal-task-text {
+      margin-bottom: 9px;
+      font-size: 13px;
+      line-height: 1.42;
+    }
+
+    .journal-event {
+      margin-top: 6px;
+      padding: 7px 9px;
+      border-radius: 9px;
+      background: rgba(255, 139, 134, 0.10);
+      color: #ffd4d1;
+      font-size: 12.5px;
+      line-height: 1.35;
+    }
+
+    .journal-event.success {
+      background: rgba(134, 227, 178, 0.10);
+      color: var(--green);
+    }
+
+    .journal-time {
+      color: var(--muted);
+      font-size: 11px;
+      margin-right: 6px;
+    }
+
+
     .hidden {
       display: none !important;
     }
@@ -533,8 +697,8 @@
           <span>Баллы</span>
           <strong><span id="points">0</span> / <span id="pointsTotal">8</span></strong>
         </div>
-        <div class="score-box mistakes">
-          <span>Ошибки</span>
+        <div class="score-box mistakes" id="mistakesBox" role="button" tabindex="0" aria-label="Открыть журнал ошибок">
+          <span>Ошибки всего</span>
           <strong id="mistakes">0</strong>
         </div>
       </div>
@@ -559,11 +723,26 @@
 
   <div class="reset-toast" id="resetToast" role="status" aria-live="polite"></div>
 
+  <div class="journal-backdrop" id="journalBackdrop"></div>
+  <aside class="journal-panel" id="journalPanel" aria-hidden="true" aria-label="Журнал ошибок">
+    <div class="journal-header">
+      <div>
+        <h2>Журнал ошибок</h2>
+        <p id="journalSummary">Зафиксированы все неверные действия ученика.</p>
+      </div>
+      <div class="journal-actions">
+        <button type="button" class="journal-download" id="downloadJournalBtn">Скачать</button>
+        <button type="button" class="journal-close" id="closeJournalBtn" aria-label="Закрыть">×</button>
+      </div>
+    </div>
+    <div class="journal-body" id="journalBody"></div>
+  </aside>
+
   <script>
     const TASKS = [{"id": 1, "correct": true, "before": "(тема) УСВОЕНА — в суффиксе краткого страдательного причастия прошедшего времени пишется одна буква Н.", "error": "", "after": "", "parts": [{"text": "(тема) УСВОЕНА — в суффиксе краткого страдательного причастия прошедшего времени пишется одна буква Н.", "error": false}]}, {"id": 2, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "ПОДДЕРЖАННЫЙ (друзьями) — в ", "error": false}, {"text": "имени прилагательном", "error": true}, {"text": ", образованном от глагола ", "error": false}, {"text": "несовершенного", "error": true}, {"text": " вида, пишется НН.", "error": false}]}, {"id": 3, "correct": true, "before": "ЛЬНЯНОЙ — в суффиксе прилагательного, образованного от основы имени существительного с помощью суффикса -ЯН-, пишется одна буква Н.", "error": "", "after": "", "parts": [{"text": "ЛЬНЯНОЙ — в суффиксе прилагательного, образованного от основы имени существительного с помощью суффикса -ЯН-, пишется одна буква Н.", "error": false}]}, {"id": 4, "correct": true, "before": "БЕЗВИННЫЙ — в имени прилагательном, образованном от имени существительного с основой на -Н с помощью суффикса -Н-, пишется НН.", "error": "", "after": "", "parts": [{"text": "БЕЗВИННЫЙ — в имени прилагательном, образованном от имени существительного с основой на -Н с помощью суффикса -Н-, пишется НН.", "error": false}]}, {"id": 5, "correct": true, "before": "ИСПУГАННАЯ (птица) — в полном страдательном причастии прошедшего времени совершенного вида пишется НН.", "error": "", "after": "", "parts": [{"text": "ИСПУГАННАЯ (птица) — в полном страдательном причастии прошедшего времени совершенного вида пишется НН.", "error": false}]}, {"id": 6, "correct": true, "before": "ВСТРЕЧЕННЫЙ — в полном страдательном причастии прошедшего времени совершенного вида пишется НН.", "error": "", "after": "", "parts": [{"text": "ВСТРЕЧЕННЫЙ — в полном страдательном причастии прошедшего времени совершенного вида пишется НН.", "error": false}]}, {"id": 7, "correct": true, "before": "СКОШЕННЫЙ (луг) — в полном страдательном причастии прошедшего времени совершенного вида пишется НН.", "error": "", "after": "", "parts": [{"text": "СКОШЕННЫЙ (луг) — в полном страдательном причастии прошедшего времени совершенного вида пишется НН.", "error": false}]}, {"id": 8, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "КУПЛЕННЫЙ — в ", "error": false}, {"text": "имени прилагательном", "error": true}, {"text": ", образованном с помощью суффикса -ЕНН-, пишется НН.", "error": false}]}, {"id": 9, "correct": true, "before": "ПЕСЧАНЫЙ — в имени прилагательном, образованном с помощью суффикса -АН-, пишется одна буква Н.", "error": "", "after": "", "parts": [{"text": "ПЕСЧАНЫЙ — в имени прилагательном, образованном с помощью суффикса -АН-, пишется одна буква Н.", "error": false}]}, {"id": 10, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "ПУТАНЫЙ (ответ) — в суффиксе ", "error": false}, {"text": "имени прилагательного, образованного с помощью суффикса -АН-", "error": true}, {"text": ", пишется одна буква Н.", "error": false}]}, {"id": 11, "correct": true, "before": "МЕДЛЕННО (произнести) — в наречии на -О пишется столько букв Н, сколько и в слове, от которого оно образовано.", "error": "", "after": "", "parts": [{"text": "МЕДЛЕННО (произнести) — в наречии на -О пишется столько букв Н, сколько и в слове, от которого оно образовано.", "error": false}]}, {"id": 12, "correct": true, "before": "(ошибки) ИСПРАВЛЕНЫ — в краткой форме причастия пишется одна буква Н.", "error": "", "after": "", "parts": [{"text": "(ошибки) ИСПРАВЛЕНЫ — в краткой форме причастия пишется одна буква Н.", "error": false}]}, {"id": 13, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "СОННЫЙ — в имени прилагательном, образованном от существительного при помощи ", "error": false}, {"text": "суффикса -ОНН-", "error": true}, {"text": ", пишется НН.", "error": false}]}, {"id": 14, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "НАСТЕННОЕ (панно) — в суффиксе имени прилагательного, образованного от основы имени существительного с помощью ", "error": false}, {"text": "суффикса -ЕНН-", "error": true}, {"text": ", пишется НН.", "error": false}]}, {"id": 15, "correct": true, "before": "УНАСЛЕДОВАННОЕ (имущество) — написание НН в слове определяется наличием суффикса -ОВА-.", "error": "", "after": "", "parts": [{"text": "УНАСЛЕДОВАННОЕ (имущество) — написание НН в слове определяется наличием суффикса -ОВА-.", "error": false}]}, {"id": 16, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "ОЛОВЯННЫЙ — НН пишется ", "error": false}, {"text": "на стыке корня и суффикса", "error": true}, {"text": ".", "error": false}]}, {"id": 17, "correct": true, "before": "ПРОДАННЫЙ (товар) — в суффиксе полного страдательного причастия прошедшего времени пишется НН.", "error": "", "after": "", "parts": [{"text": "ПРОДАННЫЙ (товар) — в суффиксе полного страдательного причастия прошедшего времени пишется НН.", "error": false}]}, {"id": 18, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "НЕСМЫШЛЁНЫЙ — слово ", "error": false}, {"text": "не употребляется без НЕ", "error": true}, {"text": ", поэтому пишется слитно.", "error": false}]}, {"id": 19, "correct": true, "before": "КАМЕННЫЙ — в имени прилагательном, образованном от существительного с основой на Н с помощью суффикса -Н-, пишется НН.", "error": "", "after": "", "parts": [{"text": "КАМЕННЫЙ — в имени прилагательном, образованном от существительного с основой на Н с помощью суффикса -Н-, пишется НН.", "error": false}]}, {"id": 20, "correct": true, "before": "ЛИНОВАННАЯ (тетрадь) — написание НН определяется наличием суффикса -ОВА-.", "error": "", "after": "", "parts": [{"text": "ЛИНОВАННАЯ (тетрадь) — написание НН определяется наличием суффикса -ОВА-.", "error": false}]}, {"id": 21, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "ИСКРЕННЕ (говорит) — в полном ", "error": false}, {"text": "страдательном причастии", "error": true}, {"text": " прошедшего времени совершенного вида пишется НН.", "error": false}]}, {"id": 22, "correct": true, "before": "ЗАМЕЧЕНА (посетителями) — в краткой форме страдательного причастия прошедшего времени пишется одна буква Н.", "error": "", "after": "", "parts": [{"text": "ЗАМЕЧЕНА (посетителями) — в краткой форме страдательного причастия прошедшего времени пишется одна буква Н.", "error": false}]}, {"id": 23, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "РВАНАЯ (кофта) — в суффиксе ", "error": false}, {"text": "прилагательного –АН-", "error": true}, {"text": " пишется одна буква Н.", "error": false}]}, {"id": 24, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "БЕССОННЫЙ — в имени прилагательном, образованном от существительного при помощи ", "error": false}, {"text": "суффикса -ОНН-", "error": true}, {"text": ", пишется НН.", "error": false}]}, {"id": 25, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "ВЫВЕДЕНЫ (сорта) — в краткой форме ", "error": false}, {"text": "прилагательного", "error": true}, {"text": " пишется столько же Н, сколько и в полной форме.", "error": false}]}, {"id": 26, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "ОКОНЧЕННАЯ (работа) — в суффиксе ", "error": false}, {"text": "прилагательного", "error": true}, {"text": ", образованного с помощью суффикса -ЕНН-, пишется НН.", "error": false}]}, {"id": 27, "correct": true, "before": "СОЛОВЬИНЫЙ — в имени прилагательном, образованном с помощью суффикса -ИН-, пишется одна буква Н.", "error": "", "after": "", "parts": [{"text": "СОЛОВЬИНЫЙ — в имени прилагательном, образованном с помощью суффикса -ИН-, пишется одна буква Н.", "error": false}]}, {"id": 28, "correct": true, "before": "СТАРИННЫЙ — в имени прилагательном, образованном от существительного с основой на Н, пишется НН.", "error": "", "after": "", "parts": [{"text": "СТАРИННЫЙ — в имени прилагательном, образованном от существительного с основой на Н, пишется НН.", "error": false}]}, {"id": 29, "correct": true, "before": "СКОВАНА (льдом) — в краткой форме страдательного причастия прошедшего времени пишется одна буква Н.", "error": "", "after": "", "parts": [{"text": "СКОВАНА (льдом) — в краткой форме страдательного причастия прошедшего времени пишется одна буква Н.", "error": false}]}, {"id": 30, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "ВЗВОЛНОВАННО (ходить) — в краткой форме ", "error": false}, {"text": "прилагательного", "error": true}, {"text": " пишется столько же Н, сколько и в полной форме.", "error": false}]}, {"id": 31, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "УТЕРЯНЫ (документы) — в имени ", "error": false}, {"text": "прилагательном", "error": true}, {"text": ", образованном с помощью суффикса -ЯН-, пишется одна буква Н.", "error": false}]}, {"id": 32, "correct": true, "before": "БРАКОВАННЫЙ (товар) — написание НН определяется наличием суффикса -ОВА-.", "error": "", "after": "", "parts": [{"text": "БРАКОВАННЫЙ (товар) — написание НН определяется наличием суффикса -ОВА-.", "error": false}]}, {"id": 33, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "ИМЕНИННЫЙ — в имени прилагательном, образованном с помощью ", "error": false}, {"text": "суффикса -ИН-", "error": true}, {"text": ", пишется одна буква Н.", "error": false}]}, {"id": 34, "correct": true, "before": "КОЖАНЫЙ — в имени прилагательном, образованном с помощью суффикса -АН-, пишется одна буква Н.", "error": "", "after": "", "parts": [{"text": "КОЖАНЫЙ — в имени прилагательном, образованном с помощью суффикса -АН-, пишется одна буква Н.", "error": false}]}, {"id": 35, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "РЕШЕНА (задача) — в краткой форме ", "error": false}, {"text": "прилагательного", "error": true}, {"text": " пишется столько же Н, сколько и в полной форме.", "error": false}]}, {"id": 36, "correct": true, "before": "ГЛИНЯНЫЙ — в имени прилагательном, образованном с помощью суффикса -ЯН-, пишется одна буква Н.", "error": "", "after": "", "parts": [{"text": "ГЛИНЯНЫЙ — в имени прилагательном, образованном с помощью суффикса -ЯН-, пишется одна буква Н.", "error": false}]}, {"id": 37, "correct": true, "before": "ПЧЕЛИНЫЙ (укус) — в суффиксе -ИН- отымённых прилагательных пишется одна буква Н.", "error": "", "after": "", "parts": [{"text": "ПЧЕЛИНЫЙ (укус) — в суффиксе -ИН- отымённых прилагательных пишется одна буква Н.", "error": false}]}, {"id": 38, "correct": true, "before": "ЧУГУННОЕ (литьё) — в прилагательном, образованном от существительного с основой на Н с помощью суффикса -Н-, пишется НН на стыке морфем.", "error": "", "after": "", "parts": [{"text": "ЧУГУННОЕ (литьё) — в прилагательном, образованном от существительного с основой на Н с помощью суффикса -Н-, пишется НН на стыке морфем.", "error": false}]}, {"id": 39, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "ГРУЖЁНАЯ (баржа) — в суффиксе ", "error": false}, {"text": "причастия", "error": true}, {"text": " пишется одна буква Н.", "error": false}]}, {"id": 40, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "РАСКОВАННО (ведёт себя) — в ", "error": false}, {"text": "кратком прилагательном", "error": true}, {"text": " пишется НН.", "error": false}]}, {"id": 41, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "ОРГАНИЗАЦИОННЫЙ (момент) — в ", "error": false}, {"text": "причастии", "error": true}, {"text": " пишется НН.", "error": false}]}, {"id": 42, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "МУЖЕСТВЕННО (поступить) — в суффиксах наречий ", "error": false}, {"text": "пишется НН", "error": true}, {"text": ".", "error": false}]}, {"id": 43, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "РУМЯНА (девочка) — в ", "error": false}, {"text": "наречии", "error": true}, {"text": " пишется столько же Н, сколько и в слове, от которого оно образовано.", "error": false}]}, {"id": 44, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "ПОКРАШЕННЫЙ (забор) — в суффиксе -ЕНН- ", "error": false}, {"text": "прилагательного", "error": true}, {"text": " пишется НН.", "error": false}]}, {"id": 45, "correct": true, "before": "ОТОРВАННАЯ (пуговица) — в суффиксе полного причастия пишется НН.", "error": "", "after": "", "parts": [{"text": "ОТОРВАННАЯ (пуговица) — в суффиксе полного причастия пишется НН.", "error": false}]}, {"id": 46, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "РЕЗАНЫЕ (овощи) — в суффиксе прилагательного, образованного ", "error": false}, {"text": "от существительного", "error": true}, {"text": " с помощью суффикса -АН-, пишется Н.", "error": false}]}, {"id": 47, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "ПОДВЕДЕНЫ (итоги) — в краткой форме ", "error": false}, {"text": "прилагательного", "error": true}, {"text": " пишется столько же Н, сколько и в полной форме.", "error": false}]}, {"id": 48, "correct": true, "before": "КОЖАНАЯ (куртка) — в суффиксе прилагательного, образованного от существительного с помощью суффикса -АН-, пишется Н.", "error": "", "after": "", "parts": [{"text": "КОЖАНАЯ (куртка) — в суффиксе прилагательного, образованного от существительного с помощью суффикса -АН-, пишется Н.", "error": false}]}, {"id": 49, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "ЛИМОННЫЙ (торт) — в суффиксе полного ", "error": false}, {"text": "страдательного причастия", "error": true}, {"text": " прошедшего времени пишется НН.", "error": false}]}, {"id": 50, "correct": true, "before": "ВКЛЮЧЁННЫЙ — в суффиксе страдательного причастия прошедшего времени, образованного от глагола совершенного вида, пишется НН.", "error": "", "after": "", "parts": [{"text": "ВКЛЮЧЁННЫЙ — в суффиксе страдательного причастия прошедшего времени, образованного от глагола совершенного вида, пишется НН.", "error": false}]}, {"id": 51, "correct": false, "before": "", "error": "", "after": "", "parts": [{"text": "СВИНОЙ — в ", "error": false}, {"text": "суффиксе -ИН-", "error": true}, {"text": " отымённых прилагательных пишется одна буква Н.", "error": false}]}, {"id": 52, "correct": true, "before": "НЕ ЗАПОЛНЕНЫ (страницы) — в кратком страдательном причастии пишется одна буква Н.", "error": "", "after": "", "parts": [{"text": "НЕ ЗАПОЛНЕНЫ (страницы) — в кратком страдательном причастии пишется одна буква Н.", "error": false}]}, {"id": 53, "correct": true, "before": "ЗАМЕЧЕННЫЕ (недостатки) — в полном страдательном причастии прошедшего времени совершенного вида пишется НН.", "error": "", "after": "", "parts": [{"text": "ЗАМЕЧЕННЫЕ (недостатки) — в полном страдательном причастии прошедшего времени совершенного вида пишется НН.", "error": false}]}, {"id": 54, "correct": true, "before": "НЕ УЗНАННЫЙ (никем) — в полном причастии с зависимым словом пишется НН.", "error": "", "after": "", "parts": [{"text": "НЕ УЗНАННЫЙ (никем) — в полном причастии с зависимым словом пишется НН.", "error": false}]}, {"id": 55, "correct": true, "before": "НЕ РАЗРАБОТАН (вопрос) — в кратком страдательном причастии пишется одна буква Н.", "error": "", "after": "", "parts": [{"text": "НЕ РАЗРАБОТАН (вопрос) — в кратком страдательном причастии пишется одна буква Н.", "error": false}]}, {"id": 56, "correct": true, "before": "УСВОЕНЫ (знания) — в суффиксе краткого страдательного причастия прошедшего времени пишется одна буква Н.", "error": "", "after": "", "parts": [{"text": "УСВОЕНЫ (знания) — в суффиксе краткого страдательного причастия прошедшего времени пишется одна буква Н.", "error": false}]}, {"id": 57, "correct": true, "before": "КАРМАННЫЙ — в имени прилагательном, образованном от имени существительного с основой на Н с помощью суффикса -Н-, пишется НН.", "error": "", "after": "", "parts": [{"text": "КАРМАННЫЙ — в имени прилагательном, образованном от имени существительного с основой на Н с помощью суффикса -Н-, пишется НН.", "error": false}]}, {"id": 58, "correct": true, "before": "ПУСТЫННЫЙ — в имени прилагательном, образованном от имени существительного с основой на Н с помощью суффикса -Н-, пишется НН.", "error": "", "after": "", "parts": [{"text": "ПУСТЫННЫЙ — в имени прилагательном, образованном от имени существительного с основой на Н с помощью суффикса -Н-, пишется НН.", "error": false}]}, {"id": 59, "correct": true, "before": "СТЕКЛЯННЫЙ — в имени прилагательном пишется НН (слово-исключение).", "error": "", "after": "", "parts": [{"text": "СТЕКЛЯННЫЙ — в имени прилагательном пишется НН (слово-исключение).", "error": false}]}, {"id": 60, "correct": true, "before": "ДЕРЕВЯННЫЙ — в имени прилагательном пишется НН (слово-исключение).", "error": "", "after": "", "parts": [{"text": "ДЕРЕВЯННЫЙ — в имени прилагательном пишется НН (слово-исключение).", "error": false}]}, {"id": 61, "correct": true, "before": "СЕРЕБРЯНЫЙ — в суффиксе прилагательного -ЯН- пишется одна буква Н.", "error": "", "after": "", "parts": [{"text": "СЕРЕБРЯНЫЙ — в суффиксе прилагательного -ЯН- пишется одна буква Н.", "error": false}]}, {"id": 62, "correct": true, "before": "ВЕТРЕНЫЙ (день) — в имени прилагательном пишется одна буква Н (слово-исключение).", "error": "", "after": "", "parts": [{"text": "ВЕТРЕНЫЙ (день) — в имени прилагательном пишется одна буква Н (слово-исключение).", "error": false}]}];
     const TASKS_PER_SLIDE = 8;
     const SLIDE_COUNT = Math.ceil(TASKS.length / TASKS_PER_SLIDE);
-    const STORAGE_KEY = "oge6-nn-progress-v1";
+    const STORAGE_KEY = "oge6-nn-progress-v2-journal";
 
     let currentSlide = 0;
     let state = loadState();
@@ -573,6 +752,13 @@
     const pointsEl = document.getElementById("points");
     const pointsTotalEl = document.getElementById("pointsTotal");
     const mistakesEl = document.getElementById("mistakes");
+    const mistakesBox = document.getElementById("mistakesBox");
+    const journalBackdrop = document.getElementById("journalBackdrop");
+    const journalPanel = document.getElementById("journalPanel");
+    const journalBody = document.getElementById("journalBody");
+    const journalSummary = document.getElementById("journalSummary");
+    const closeJournalBtn = document.getElementById("closeJournalBtn");
+    const downloadJournalBtn = document.getElementById("downloadJournalBtn");
     const slideCounterEl = document.getElementById("slideCounter");
     const rangeLabelEl = document.getElementById("rangeLabel");
     const prevBtn = document.getElementById("prevBtn");
@@ -589,7 +775,8 @@
         stage: "answer",
         reasonMode: false,
         feedback: "",
-        feedbackType: ""
+        feedbackType: "",
+        history: []
       };
     }
 
@@ -602,6 +789,7 @@
               ...freshTaskState(),
               ...item
             };
+            if (!Array.isArray(restored.history)) restored.history = [];
             if (restored.stage === "reason" && !restored.done) {
               restored.reasonMode = true;
             }
@@ -669,7 +857,7 @@
 
       if (taskState.reasonMode && !taskState.done) {
         wrapper.classList.add("reason-mode");
-        wrapper.title = "Нажми на ошибочную часть объяснения";
+        wrapper.title = "Нажми на одну из ошибочных частей объяснения";
       }
 
       if (Array.isArray(task.parts)) {
@@ -712,8 +900,10 @@
             completeTask(taskIndex,
               "Задание засчитано.");
           } else {
+            const clickedText = (event.target.textContent || "другая часть формулировки").trim();
             registerMistake(taskIndex,
-              "Задание не засчитано.");
+              "Задание не засчитано.", null,
+              `Нажата неверная часть: «${clickedText}»`);
           }
         });
       }
@@ -765,7 +955,7 @@
           reasonButton.addEventListener("click", () => {
             state[taskIndex].reasonMode = true;
             state[taskIndex].feedback =
-              "Нажми в тексте на ошибочную часть объяснения.";
+              "Нажми в тексте на одну из ошибочных частей объяснения.";
             state[taskIndex].feedbackType = "wait";
             saveState();
             render();
@@ -791,7 +981,12 @@
       if (taskState.done || taskState.stage === "reason") return;
 
       if (answer !== task.correct) {
-        registerMistake(taskIndex, "Задание не засчитано.", card);
+        registerMistake(
+          taskIndex,
+          "Задание не засчитано.",
+          card,
+          `Выбран неверный ответ: «${answer ? "Верно" : "Неверно"}»`
+        );
         return;
       }
 
@@ -801,15 +996,28 @@
         taskState.stage = "reason";
         taskState.reasonMode = true;
         taskState.feedback =
-          "Нажми в тексте на ошибочную часть объяснения.";
+          "Нажми в тексте на одну из ошибочных частей объяснения.";
         taskState.feedbackType = "wait";
         saveState();
         render();
       }
     }
 
+    function addHistoryEvent(taskIndex, text, success = false) {
+      const taskState = state[taskIndex];
+      if (!Array.isArray(taskState.history)) taskState.history = [];
+      taskState.history.push({
+        text,
+        success,
+        time: new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+      });
+    }
+
     function completeTask(taskIndex, message) {
       const taskState = state[taskIndex];
+      if (taskState.mistakes > 0) {
+        addHistoryEvent(taskIndex, "После ошибки задание выполнено верно.", true);
+      }
       taskState.done = true;
       taskState.stage = "done";
       taskState.reasonMode = false;
@@ -819,9 +1027,10 @@
       render();
     }
 
-    function registerMistake(taskIndex, message, card = null) {
+    function registerMistake(taskIndex, message, card = null, detail = "Допущена ошибка.") {
       const taskState = state[taskIndex];
       taskState.mistakes += 1;
+      addHistoryEvent(taskIndex, detail, false);
       taskState.feedback = message;
       taskState.feedbackType = "bad";
       saveState();
@@ -840,7 +1049,11 @@
       const stats = slideStats(currentSlide);
       pointsEl.textContent = stats.points;
       pointsTotalEl.textContent = stats.total;
-      mistakesEl.textContent = stats.mistakes;
+      const totalMistakes = state.reduce((sum, item) => sum + item.mistakes, 0);
+      mistakesEl.textContent = totalMistakes;
+      mistakesBox.title = totalMistakes
+        ? "Открыть журнал всех ошибок"
+        : "Ошибок пока нет";
       slideCounterEl.textContent = `${currentSlide + 1} / ${SLIDE_COUNT}`;
 
       const first = currentSlide * TASKS_PER_SLIDE + 1;
@@ -849,6 +1062,113 @@
 
       prevBtn.disabled = currentSlide === 0;
       nextBtn.disabled = currentSlide === SLIDE_COUNT - 1;
+    }
+
+    function taskFullText(task) {
+      return Array.isArray(task.parts)
+        ? task.parts.map(part => part.text).join("")
+        : `${task.before || ""}${task.error || ""}${task.after || ""}`;
+    }
+
+    function totalMistakesCount() {
+      return state.reduce((sum, item) => sum + item.mistakes, 0);
+    }
+
+    function renderJournal() {
+      const tasksWithErrors = TASKS.filter((task, index) => state[index].mistakes > 0);
+      const total = totalMistakesCount();
+      journalSummary.textContent = total
+        ? `Всего ошибок: ${total}. История сохраняется и после исправления.`
+        : "Ошибок пока нет.";
+      downloadJournalBtn.disabled = total === 0;
+
+      if (!tasksWithErrors.length) {
+        journalBody.innerHTML = '<div class="journal-empty">Пока ни одной ошибки. Здесь появится история неверных ответов и кликов.</div>';
+        return;
+      }
+
+      journalBody.innerHTML = "";
+      let currentGroup = -1;
+      tasksWithErrors.forEach(task => {
+        const taskIndex = task.id - 1;
+        const slideIndex = Math.floor(taskIndex / TASKS_PER_SLIDE);
+        if (slideIndex !== currentGroup) {
+          currentGroup = slideIndex;
+          const heading = document.createElement("h3");
+          heading.className = "journal-slide-title";
+          heading.textContent = `Слайд ${slideIndex + 1}`;
+          journalBody.appendChild(heading);
+        }
+
+        const item = document.createElement("article");
+        item.className = "journal-item";
+
+        const title = document.createElement("div");
+        title.className = "journal-task-title";
+        title.textContent = `Задание №${task.id} · ошибок: ${state[taskIndex].mistakes}`;
+
+        const text = document.createElement("div");
+        text.className = "journal-task-text";
+        text.textContent = taskFullText(task);
+
+        item.append(title, text);
+        state[taskIndex].history.forEach(event => {
+          const row = document.createElement("div");
+          row.className = `journal-event${event.success ? " success" : ""}`;
+          const time = document.createElement("span");
+          time.className = "journal-time";
+          time.textContent = event.time || "";
+          row.append(time, document.createTextNode(`${event.success ? "✓" : "✕"} ${event.text}`));
+          item.appendChild(row);
+        });
+        journalBody.appendChild(item);
+      });
+    }
+
+    function openJournal() {
+      renderJournal();
+      journalBackdrop.classList.add("open");
+      journalPanel.classList.add("open");
+      journalPanel.setAttribute("aria-hidden", "false");
+      closeJournalBtn.focus();
+    }
+
+    function closeJournal() {
+      journalBackdrop.classList.remove("open");
+      journalPanel.classList.remove("open");
+      journalPanel.setAttribute("aria-hidden", "true");
+      mistakesBox.focus();
+    }
+
+    function downloadJournal() {
+      const total = totalMistakesCount();
+      if (!total) return;
+      const lines = [
+        "ОГЭ. Задание 6. Н / НН",
+        `Всего ошибок: ${total}`,
+        `Дата: ${new Date().toLocaleString("ru-RU")}`,
+        ""
+      ];
+
+      TASKS.forEach((task, index) => {
+        if (!state[index].mistakes) return;
+        lines.push(`Слайд ${Math.floor(index / TASKS_PER_SLIDE) + 1}. Задание №${task.id}`);
+        lines.push(taskFullText(task));
+        state[index].history.forEach(event => {
+          lines.push(`${event.time || ""} ${event.success ? "✓" : "✕"} ${event.text}`.trim());
+        });
+        lines.push("");
+      });
+
+      const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "zhurnal-oshibok-n-nn.txt";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
     }
 
     function render() {
@@ -880,6 +1200,17 @@
       }
     });
 
+    mistakesBox.addEventListener("click", openJournal);
+    mistakesBox.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openJournal();
+      }
+    });
+    closeJournalBtn.addEventListener("click", closeJournal);
+    journalBackdrop.addEventListener("click", closeJournal);
+    downloadJournalBtn.addEventListener("click", downloadJournal);
+
     resetSlideBtn.addEventListener("click", () => {
       const start = currentSlide * TASKS_PER_SLIDE;
       const end = Math.min(start + TASKS_PER_SLIDE, state.length);
@@ -909,6 +1240,11 @@
     });
 
     document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && journalPanel.classList.contains("open")) {
+        closeJournal();
+        return;
+      }
+      if (journalPanel.classList.contains("open")) return;
       if (event.key === "ArrowLeft" && currentSlide > 0) {
         currentSlide -= 1;
         render();
