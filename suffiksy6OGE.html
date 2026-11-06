@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ОГЭ 6 — Суффиксы</title>
+<style>
+:root{--bg:#071522;--panel:#0d2232;--panel2:#102b3e;--text:#f4fbff;--muted:#a9c6d5;--teal:#35d0c4;--amber:#ffc25c;--coral:#ff7d76;--ok:#58d68d;--bad:#ff6b6b;--line:#275067}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:radial-gradient(circle at 15% 10%,#123b4d 0,#071522 40%,#050c15 100%);color:var(--text);min-height:100vh}
+.app{max-width:1120px;margin:auto;padding:24px 18px 40px}
+header{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin-bottom:18px}
+h1{margin:0;font-size:clamp(28px,4vw,44px);line-height:1.05} .sub{color:var(--muted);margin-top:8px}
+.badge{border:1px solid #3d6b7c;background:#0d2534;border-radius:999px;padding:9px 14px;color:#d7eff7;font-size:14px}
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0 18px}
+button{font:inherit;border:0;border-radius:12px;padding:10px 14px;cursor:pointer}
+.nav{background:#153448;color:#fff;border:1px solid #2f6076} .nav:disabled{opacity:.35;cursor:not-allowed}
+.reset{background:#4b2930;color:#ffd9d7;border:1px solid #7d444c}
+.counter{margin-left:auto;color:var(--muted)} .score{font-weight:800;color:var(--amber)}
+.card{background:linear-gradient(180deg,rgba(16,43,62,.96),rgba(10,31,45,.96));border:1px solid var(--line);border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 12px 30px rgba(0,0,0,.2)}
+.prompt{font-size:18px;line-height:1.5} .word{font-weight:900;color:#fff}
+.actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.truth{background:#163a32;color:#caffe1;border:1px solid #2e735f} .false{background:#40262b;color:#ffd1d1;border:1px solid #83444d}
+.truth.sel{outline:2px solid var(--ok)} .false.sel{outline:2px solid var(--bad)}
+.feedback{margin-top:12px;padding:12px;border-radius:12px;background:#0b1e2b;border:1px solid #24485b;display:none}
+.feedback.show{display:block} .feedback.ok{border-color:#2d6d59} .feedback.bad{border-color:#7c3e47}
+.whybox{display:none;margin-top:12px;padding-top:12px;border-top:1px dashed #34586a} .whybox.show{display:block}
+.whylabel{color:var(--amber);font-weight:800;margin-bottom:8px}
+.whyopt{display:block;width:100%;text-align:left;margin:7px 0;background:#112b3b;color:#eaf7fb;border:1px solid #31566a}
+.whyopt.good{border-color:#3b8c6f;background:#153a31} .whyopt.bad{border-color:#914951;background:#40262b}
+.footer{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-top:20px;padding:14px 4px;color:var(--muted);flex-wrap:wrap}
+.done{background:#153a31;border:1px solid #3b8c6f;border-radius:14px;padding:14px;display:none;margin-top:16px} .done.show{display:block}
+.small{font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+<div><h1>Суффиксы</h1><div class="sub">Задание 6 ОГЭ · формулировки ОБЗ ФИПИ без исправлений</div></div>
+<div class="badge">Найди неверные объяснения</div>
+</header>
+
+<div class="toolbar">
+<button id="prev" class="nav">←</button>
+<button id="next" class="nav">→</button>
+<button id="reset" class="reset">Сбросить слайд</button>
+<div class="counter">Слайд <span id="slideNo">1</span> / 7 · <span class="score" id="score">0/0</span></div>
+</div>
+
+<div id="cards"></div>
+<div id="done" class="done"></div>
+
+<div class="footer">
+<div>Если объяснение неверно, сначала нажми «Неверно», затем укажи, что именно ошибочно.</div>
+<div class="small">Исходные формулировки банка сохранены.</div>
+</div>
+</div>
+
+<script>
+const slides = [[{"word": "ОБЕССИЛИТЬ (противника)", "text": "в переходном глаголе II спряжения со значением «лишить силы» пишется суффикс -И-.", "correct": true, "why": ""}, {"word": "КОМАНДОВАТЬ", "text": "правописание суффикса зависит от формы настоящего времени 1-го лица единственного числа этого глагола.", "correct": true, "why": ""}, {"word": "ЗАВЕДОВАТЬ", "text": "правописание суффикса зависит от формы настоящего времени 1-го лица единственного числа этого глагола.", "correct": true, "why": ""}, {"word": "МОЛОДЦЕВАТЫЙ (вид)", "text": "в суффиксе прилагательного после мягкого согласного пишется буква Е.", "correct": false, "why": "После Ц буква Е в суффиксе пишется без ударения."}, {"word": "НЕМЕЦКИЙ (станок)", "text": "в относительном прилагательном, образованном от существительного с основой на -Ц, пишется суффикс -К-.", "correct": true, "why": ""}, {"word": "ДОВЕРЧИВЫЙ", "text": "правописание гласной И в суффиксе причастия настоящего времени определяется принадлежностью ко II спряжению глагола.", "correct": false, "why": "Доверчивый — имя прилагательное, а не причастие. В нём пишется неизменяемый суффикс -ЧИВ-."}], [{"word": "КУНИЦЫНА (нора)", "text": "в суффиксе имени прилагательного после Ц пишется буква Ы.", "correct": true, "why": ""}, {"word": "БОЛЬШОЙ", "text": "в суффиксе имени прилагательного после шипящего под ударением пишется буква О.", "correct": false, "why": "В слове «большой» буква О находится в окончании, а не в суффиксе."}, {"word": "КОЛЬЦЕВАЯ (композиция)", "text": "в суффиксе имени прилагательного после Ц без ударения пишется буква Е.", "correct": true, "why": ""}, {"word": "УКЛОНЧИВЫЙ (ответ)", "text": "суффикс -ЧИВ- в имени прилагательном неизменяемый.", "correct": true, "why": ""}, {"word": "БЛЕДНОЛИЦЫЙ (мальчик)", "text": "в суффиксе имени прилагательного после Ц пишется буква Ы.", "correct": false, "why": "В слове «бледнолицый» буква Ы находится в окончании, а не в суффиксе."}, {"word": "БЛИЗКИЙ", "text": "в качественном имени прилагательном, имеющем краткую форму, пишется суффикс -К-.", "correct": true, "why": ""}], [{"word": "СКОЛЬЗКИЙ", "text": "в качественном имени прилагательном, имеющем краткую форму, пишется суффикс -К-.", "correct": true, "why": ""}, {"word": "ТКАЦКИЙ (станок)", "text": "в относительном прилагательном, образованном от имени существительного с основой на -Ч, пишется суффикс -К-.", "correct": true, "why": ""}, {"word": "КАЛАЧОМ", "text": "в суффиксе имени существительного под ударением пишется буква О.", "correct": false, "why": "В слове «калачом» буква О находится в окончании творительного падежа, а не в суффиксе."}, {"word": "КАРМАНЧИК", "text": "в имени существительном пишется суффикс -ЧИК-, потому что при склонении гласный И выпадает.", "correct": false, "why": "Гласный И в слове «карманчик» при склонении не выпадает: карманчика. Условие указано неверно."}, {"word": "РУЖЬЕЦО", "text": "в суффиксе имени существительного после Ц под ударением пишется буква О.", "correct": false, "why": "В слове «ружьецо» буква О находится в окончании, а не в суффиксе: с ружьецом, нет ружьеца."}, {"word": "ПЛЕЧОМ", "text": "в суффиксе имени существительного после шипящих под ударением пишется буква О.", "correct": false, "why": "В слове «плечом» буква О находится в окончании, а не в суффиксе."}], [{"word": "НОЧЁВКА", "text": "в суффиксе отглагольных имён существительных после шипящих пишется буква Ё.", "correct": true, "why": ""}, {"word": "КРЮЧОЧЕК", "text": "в имени существительном пишется суффикс -ЕК-, потому что при склонении слова гласный звук в этом суффиксе выпадает.", "correct": true, "why": ""}, {"word": "ПТИЦЕЙ", "text": "в суффиксе имени существительного после Ц без ударения пишется буква Е.", "correct": false, "why": "В слове «птицей» буква Е находится в окончании, а не в суффиксе."}, {"word": "С ВРАЧОМ", "text": "в суффиксе имён существительных после шипящих под ударением пишется буква О.", "correct": false, "why": "В слове «врачом» буква О находится в окончании творительного падежа, а не в суффиксе."}, {"word": "ДЕВЧОНКА", "text": "в суффиксе имени существительного после шипящего согласного под ударением пишется буква О.", "correct": true, "why": ""}, {"word": "С ЛУЧОМ", "text": "в суффиксе имени существительного после шипящего согласного под ударением пишется буква О.", "correct": false, "why": "В слове «лучом» буква О находится в окончании, а не в суффиксе."}], [{"word": "МЕДВЕЖОНОК", "text": "в суффиксе имени существительного после шипящего согласного под ударением пишется буква О.", "correct": true, "why": ""}, {"word": "ПАЛЬЧИК", "text": "в имени существительном пишется суффикс -ИК-, потому что при склонении гласный И выпадает.", "correct": false, "why": "В суффиксе -ИК- гласный И при склонении сохраняется: нет пальчика. Выпадающая гласная характерна для суффикса -ЕК-."}, {"word": "НОЖОМ", "text": "в суффиксе имени существительного после шипящего согласного под ударением пишется буква О.", "correct": false, "why": "В слове «ножом» буква О находится в окончании творительного падежа, а не в суффиксе."}, {"word": "РЕШЁТКА", "text": "в суффиксе отглагольного имени существительного под ударением пишется буква Ё.", "correct": false, "why": "В слове «решётка» буква Ё находится в корне, а не в суффиксе; сравните: решето."}, {"word": "ВРАЧОМ", "text": "в суффиксе имени существительного после шипящего согласного под ударением пишется буква О.", "correct": false, "why": "В слове «врачом» буква О находится в окончании творительного падежа, а не в суффиксе."}, {"word": "ОГОНЁЧЕК", "text": "в суффиксе имени существительного пишется буква Е, так как при склонении гласный звук в этом суффиксе выпадает.", "correct": true, "why": ""}], [{"word": "ДОСРОЧНО", "text": "в наречии написание суффикса зависит от ударения.", "correct": false, "why": "В слове «досрочно» суффикс -О не определяется ударением: наречие образовано от прилагательного «досрочный» с помощью суффикса -О."}, {"word": "ВПРАВО", "text": "написание суффикса -О в наречии определяется наличием приставки В-.", "correct": true, "why": ""}, {"word": "ИСКОСА", "text": "написание суффикса -А в наречии определяется наличием приставки ИС-.", "correct": true, "why": ""}, {"word": "НАСУХО", "text": "в наречии написание суффикса зависит от ударения.", "correct": false, "why": "В слове «насухо» суффикс -О определяется наличием приставки НА-, а не ударением."}, {"word": "ТЯГУЧЕ", "text": "в суффиксе наречия после шипящего под ударением пишется буква Е.", "correct": false, "why": "В слове «тягуче» суффикс безударный. После шипящего под ударением в наречиях пишется О, без ударения — Е."}, {"word": "ИЗДАВНА", "text": "написание суффикса -А в наречии определяется наличием приставки ИЗ-.", "correct": true, "why": ""}], [{"word": "ПЕВУЧЕ", "text": "в суффиксе наречия под ударением пишется буква Е.", "correct": false, "why": "В слове «певуче» суффикс безударный. После шипящего под ударением пишется О, без ударения — Е."}, {"word": "ИЗРЕДКА", "text": "правописание суффикса -А в наречии определяется наличием приставки ИЗ-.", "correct": true, "why": ""}, {"word": "ИЗДАВНА", "text": "написание суффикса -А в наречии определяется наличием приставки ИЗ-.", "correct": true, "why": ""}]];
+let current = 0;
+const state = slides.map(s => s.map(() => ({answer:null,whyDone:false,locked:false})));
+
+function esc(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function distractors(correct){
+ const pool=[
+ "Неверно определена часть речи.",
+ "Неверно указана морфема: это окончание, а не суффикс.",
+ "Неверно указано условие выбора буквы в суффиксе.",
+ "Неверно указано ударение.",
+ "Правило сформулировано верно, но к этому слову не относится."
+ ];
+ const arr=[correct,...pool.filter(x=>x!==correct)].slice(0,4);
+ return arr.sort((a,b)=>a.localeCompare(b));
+}
+function render(){
+ document.getElementById('slideNo').textContent=current+1;
+ const host=document.getElementById('cards'); host.innerHTML='';
+ slides[current].forEach((q,i)=>{
+   const st=state[current][i];
+   const d=document.createElement('div'); d.className='card';
+   d.innerHTML=`<div class="prompt"><span class="word">${esc(q.word)}</span> — ${esc(q.text)}</div>
+   <div class="actions">
+     <button class="truth ${st.answer===true?'sel':''}" data-a="1">Верно</button>
+     <button class="false ${st.answer===false?'sel':''}" data-a="0">Неверно</button>
+   </div>
+   <div class="feedback ${st.locked?'show '+((st.answer===q.correct)?'ok':'bad'):''}"></div>
+   <div class="whybox ${(!q.correct && st.answer===false && st.locked)?'show':''}"></div>`;
+   const fb=d.querySelector('.feedback');
+   if(st.locked){
+     if(st.answer===q.correct){
+       if(q.correct) fb.textContent='Верно.';
+       else if(st.whyDone) fb.textContent='Верно: объяснение в банке ошибочно, причина определена правильно.';
+       else fb.textContent='Да, объяснение неверно. Теперь укажи, что именно неверно.';
+     } else fb.textContent='Проверь ещё раз: выбор не совпадает с ключом.';
+   }
+   const buttons=d.querySelectorAll('.actions button');
+   buttons.forEach(b=>{
+     if(st.locked) b.disabled=true;
+     b.onclick=()=>{
+       if(st.locked)return;
+       st.answer=b.dataset.a==='1'; st.locked=true; render();
+     };
+   });
+   const wb=d.querySelector('.whybox');
+   if(!q.correct && st.answer===false && st.locked){
+     wb.innerHTML='<div class="whylabel">Почему неверно?</div>';
+     distractors(q.why).forEach(opt=>{
+       const b=document.createElement('button'); b.className='whyopt'; b.textContent=opt;
+       if(st.whyDone) b.disabled=true;
+       b.onclick=()=>{
+         if(st.whyDone)return;
+         if(opt===q.why){st.whyDone=true; b.classList.add('good'); setTimeout(render,250)}
+         else{b.classList.add('bad'); setTimeout(()=>b.classList.remove('bad'),450)}
+       };
+       wb.appendChild(b);
+     });
+   }
+   host.appendChild(d);
+ });
+ const s=state[current]; 
+ const earned=s.filter((st,i)=>st.answer===slides[current][i].correct && (slides[current][i].correct || st.whyDone)).length;
+ const attempted=s.filter(st=>st.locked).length;
+ document.getElementById('score').textContent=`${earned}/${attempted}`;
+ document.getElementById('prev').disabled=current===0;
+ document.getElementById('next').disabled=current===slides.length-1;
+ const allDone=state.every((sl,si)=>sl.every((st,i)=>st.answer===slides[si][i].correct && (slides[si][i].correct || st.whyDone)));
+ const done=document.getElementById('done');
+ done.className='done'+(allDone?' show':'');
+ if(allDone) done.textContent='Готово: весь блок пройден.';
+}
+document.getElementById('prev').onclick=()=>{if(current>0){current--;render()}};
+document.getElementById('next').onclick=()=>{if(current<slides.length-1){current++;render()}};
+document.getElementById('reset').onclick=()=>{state[current]=slides[current].map(()=>({answer:null,whyDone:false,locked:false}));render()};
+render();
+</script>
+</body>
+</html>

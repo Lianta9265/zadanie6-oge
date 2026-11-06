@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ОГЭ 6 — Слитно, раздельно, дефис</title>
+<style>
+:root{--bg:#071522;--panel:#0d2232;--panel2:#102b3e;--text:#f4fbff;--muted:#a9c6d5;--teal:#35d0c4;--amber:#ffc25c;--coral:#ff7d76;--ok:#58d68d;--bad:#ff6b6b;--line:#275067}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:radial-gradient(circle at 15% 10%,#123b4d 0,#071522 40%,#050c15 100%);color:var(--text);min-height:100vh}
+.app{max-width:1120px;margin:auto;padding:24px 18px 40px}
+header{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin-bottom:18px}
+h1{margin:0;font-size:clamp(28px,4vw,44px);line-height:1.05} .sub{color:var(--muted);margin-top:8px}
+.badge{border:1px solid #3d6b7c;background:#0d2534;border-radius:999px;padding:9px 14px;color:#d7eff7;font-size:14px}
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0 18px}
+button{font:inherit;border:0;border-radius:12px;padding:10px 14px;cursor:pointer}
+.nav{background:#153448;color:#fff;border:1px solid #2f6076} .nav:disabled{opacity:.35;cursor:not-allowed}
+.reset{background:#4b2930;color:#ffd9d7;border:1px solid #7d444c}
+.counter{margin-left:auto;color:var(--muted)} .score{font-weight:800;color:var(--amber)}
+.card{background:linear-gradient(180deg,rgba(16,43,62,.96),rgba(10,31,45,.96));border:1px solid var(--line);border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 12px 30px rgba(0,0,0,.2)}
+.prompt{font-size:18px;line-height:1.5} .word{font-weight:900;color:#fff}
+.actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.truth{background:#163a32;color:#caffe1;border:1px solid #2e735f} .false{background:#40262b;color:#ffd1d1;border:1px solid #83444d}
+.truth.sel{outline:2px solid var(--ok)} .false.sel{outline:2px solid var(--bad)}
+.feedback{margin-top:12px;padding:12px;border-radius:12px;background:#0b1e2b;border:1px solid #24485b;display:none}
+.feedback.show{display:block} .feedback.ok{border-color:#2d6d59} .feedback.bad{border-color:#7c3e47}
+.whybox{display:none;margin-top:12px;padding-top:12px;border-top:1px dashed #34586a} .whybox.show{display:block}
+.whylabel{color:var(--amber);font-weight:800;margin-bottom:8px}
+.whyopt{display:block;width:100%;text-align:left;margin:7px 0;background:#112b3b;color:#eaf7fb;border:1px solid #31566a}
+.whyopt.good{border-color:#3b8c6f;background:#153a31} .whyopt.bad{border-color:#914951;background:#40262b}
+.footer{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-top:20px;padding:14px 4px;color:var(--muted);flex-wrap:wrap}
+.done{background:#153a31;border:1px solid #3b8c6f;border-radius:14px;padding:14px;display:none;margin-top:16px} .done.show{display:block}
+.small{font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+<div><h1>Слитно · раздельно · дефис</h1><div class="sub">Задание 6 ОГЭ · формулировки ОБЗ ФИПИ без исправлений</div></div>
+<div class="badge">Найди неверные объяснения</div>
+</header>
+
+<div class="toolbar">
+<button id="prev" class="nav">←</button>
+<button id="next" class="nav">→</button>
+<button id="reset" class="reset">Сбросить слайд</button>
+<div class="counter">Слайд <span id="slideNo">1</span> / 6 · <span class="score" id="score">0/0</span></div>
+</div>
+
+<div id="cards"></div>
+<div id="done" class="done"></div>
+
+<div class="footer">
+<div>Если объяснение неверно, сначала нажми «Неверно», затем укажи, что именно ошибочно.</div>
+<div class="small">Исходные формулировки банка сохранены.</div>
+</div>
+</div>
+
+<script>
+const slides = [[{"word": "ПОЛ-ЛИСТА", "text": "пишется через дефис, потому что после пол- стоит буква л.", "correct": true, "why": ""}, {"word": "ПО-ПРЕЖНЕМУ (тепло)", "text": "написание наречия через дефис определяется наличием приставки ПО- и суффикса -ЕМУ.", "correct": true, "why": ""}, {"word": "СОРОКАЛЕТНИЙ", "text": "сложное числительное пишется слитно.", "correct": false, "why": "Это не числительное, а сложное имя прилагательное (сорокалетний — какой?)."}, {"word": "КРЕПКО-НАКРЕПКО (усвоить)", "text": "наречие, пишется через дефис, потому что образовано сложением основ с одним и тем же корнем.", "correct": true, "why": ""}, {"word": "СЕЛЬСКОХОЗЯЙСТВЕННЫЙ", "text": "сложное имя прилагательное, образованное на основе подчинительного словосочетания, пишется слитно.", "correct": true, "why": ""}, {"word": "МОРОЗОУСТОЙЧИВЫЙ", "text": "сложное имя прилагательное, образованное на основе подчинительного словосочетания, пишется слитно.", "correct": true, "why": ""}], [{"word": "КРЕПКО-НАКРЕПКО", "text": "дефисное написание сложного прилагательного определяется его образованием путём сложения одной и той же основы.", "correct": false, "why": "Крепко-накрепко — наречие, а не сложное прилагательное."}, {"word": "ЗЕЛЕНОВАТО-ГОЛУБОЙ", "text": "сложное имя прилагательное пишется через дефис, потому что образовано на основе подчинительного словосочетания.", "correct": false, "why": "Причина указана неверно: прилагательное пишется через дефис, потому что обозначает оттенок цвета."}, {"word": "ИЗУМРУДНО-ЗЕЛЁНЫЙ", "text": "сложные имена прилагательные, обозначающие оттенки цвета, пишутся через дефис.", "correct": true, "why": ""}, {"word": "(написано) ПО-ЛАТЫНИ", "text": "наречие пишется через дефис, потому что оно образовано от основы имени существительного при помощи приставки ПО- и суффикса -И.", "correct": true, "why": ""}, {"word": "ПО-ВЕСЕННЕМУ (тепло)", "text": "наречие пишется через дефис, потому что образовано от основы имени прилагательного при помощи приставки ПО- и суффикса -ЕМУ.", "correct": true, "why": ""}, {"word": "НИ ЗА ЧТО", "text": "в сочетании с предлогом отрицательное местоимение с НИ пишется раздельно.", "correct": true, "why": ""}], [{"word": "(говорить) ПО-ФРАНЦУЗСКИ", "text": "наречие пишется через дефис, потому что оно образовано от основы имени прилагательного при помощи приставки ПО- и суффикса -И.", "correct": true, "why": ""}, {"word": "ПОЛ-ОСТРОВА", "text": "слово пишется через дефис, потому что после пол- стоит гласная буква.", "correct": true, "why": ""}, {"word": "БЛЕДНО-ЖЁЛТЫЙ", "text": "сложные имена прилагательные, которые обозначают оттенки цвета, пишутся через дефис.", "correct": true, "why": ""}, {"word": "(верен) ПО-ПРЕЖНЕМУ", "text": "наречие пишется через дефис, потому что оно образовано от основы имени прилагательного при помощи приставки ПО- и суффикса -ЕМУ.", "correct": true, "why": ""}, {"word": "(говорит) ПО-ГРУЗИНСКИ", "text": "написание наречия через дефис определяется наличием приставки ПО- и суффикса -И.", "correct": true, "why": ""}, {"word": "СЕДОБОРОДЫЙ (старик)", "text": "сложное имя прилагательное, образованное на основе подчинительного словосочетания, пишется слитно.", "correct": true, "why": ""}], [{"word": "(работать) ПО-НОВОМУ", "text": "наречие пишется через дефис, потому что оно образовано от основы имени прилагательного при помощи приставки ПО- и суффикса -ОМУ.", "correct": true, "why": ""}, {"word": "НИ С КЕМ (не разговаривал)", "text": "в сочетании с предлогом отрицательное местоимение с НИ пишется раздельно.", "correct": true, "why": ""}, {"word": "ПОЛ-ЛИМОНА", "text": "слово пишется через дефис, потому что после пол- стоит буква Л.", "correct": true, "why": ""}, {"word": "(дорог) ПО-ПРЕЖНЕМУ", "text": "наречие, образованное от основы имени прилагательного с помощью приставки ПО- и суффикса -ЕМУ-, пишется через дефис.", "correct": true, "why": ""}, {"word": "НИ С КЕМ (не обсуждал)", "text": "отрицательное местоимение с предлогом пишется с частицей НИ раздельно.", "correct": true, "why": ""}, {"word": "ШЕСТИМЕТРОВАЯ (доска)", "text": "сложное имя числительное пишется слитно.", "correct": false, "why": "Это не числительное, а сложное имя прилагательное (шестиметровая — какая?)."}], [{"word": "ЧИСТОСЕРДЕЧНЫЙ", "text": "сложное имя прилагательное, образованное на основе подчинительного словосочетания, пишется слитно.", "correct": true, "why": ""}, {"word": "ПО ТРОЕ (шли)", "text": "имя существительное с предлогом пишется раздельно.", "correct": false, "why": "Трое — собирательное числительное, а не имя существительное. Предлог ПО с числительным пишется раздельно."}, {"word": "ПОЛ-ЯБЛОКА", "text": "слово пишется через дефис, потому что после пол- стоит гласная буква.", "correct": true, "why": ""}, {"word": "ПОЛ-ЛОЖКИ", "text": "слово пишется через дефис, так как после пол- следует буква Л.", "correct": true, "why": ""}, {"word": "ИЗЖЕЛТА-КРАСНЫЙ", "text": "сложное имя прилагательное, обозначающее оттенок цвета, пишется через дефис.", "correct": true, "why": ""}, {"word": "ЯРКО-ЖЁЛТЫЙ", "text": "сложное имя прилагательное пишется через дефис, потому что образовано на основе подчинительного словосочетания.", "correct": false, "why": "Причина указана неверно: ярко-жёлтый пишется через дефис, потому что обозначает оттенок цвета."}], [{"word": "ПЯТИТОМНЫЙ", "text": "сложное имя числительное пишется слитно.", "correct": false, "why": "Это не числительное, а сложное имя прилагательное (пятитомный — какой?)."}, {"word": "СВЕТЛОВОЛОСАЯ (девочка)", "text": "сложное имя прилагательное пишется слитно, потому что обозначает оттенок цвета.", "correct": false, "why": "Причина указана неверно: слово образовано на основе подчинительного словосочетания «светлые волосы», поэтому пишется слитно."}, {"word": "НЕЖНО-ГОЛУБОЙ", "text": "сложные имена прилагательные, которые обозначают оттенки цвета, пишутся через дефис.", "correct": true, "why": ""}, {"word": "(перевязать) КРЕСТ-НАКРЕСТ", "text": "наречие пишется через дефис, потому что образовано сложением основ с одним и тем же корнем.", "correct": true, "why": ""}, {"word": "(общались) ПО-СВОЙСКИ", "text": "наречие пишется через дефис, так как оно образовано от основы имени прилагательного при помощи приставки ПО- и суффикса -И.", "correct": true, "why": ""}, {"word": "ПОЛ-УРОКА", "text": "слово пишется через дефис, потому что после пол- стоит буква, обозначающая гласный звук.", "correct": true, "why": ""}]];
+let current = 0;
+const state = slides.map(s => s.map(() => ({answer:null,whyDone:false,locked:false})));
+
+function esc(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function distractors(correct){
+ const pool=[
+ "Слово написано верно, но правило относится к другой орфограмме.",
+ "Неверно определена часть речи.",
+ "Неверно указана причина слитного/раздельного/дефисного написания.",
+ "Нужно писать это слово раздельно.",
+ "Нужно писать это слово слитно."
+ ];
+ const arr=[correct,...pool.filter(x=>x!==correct)].slice(0,4);
+ return arr.sort((a,b)=>a.localeCompare(b));
+}
+function render(){
+ document.getElementById('slideNo').textContent=current+1;
+ const host=document.getElementById('cards'); host.innerHTML='';
+ slides[current].forEach((q,i)=>{
+   const st=state[current][i];
+   const d=document.createElement('div'); d.className='card';
+   d.innerHTML=`<div class="prompt"><span class="word">${esc(q.word)}</span> — ${esc(q.text)}</div>
+   <div class="actions">
+     <button class="truth ${st.answer===true?'sel':''}" data-a="1">Верно</button>
+     <button class="false ${st.answer===false?'sel':''}" data-a="0">Неверно</button>
+   </div>
+   <div class="feedback ${st.locked?'show '+((st.answer===q.correct)?'ok':'bad'):''}"></div>
+   <div class="whybox ${(!q.correct && st.answer===false && st.locked)?'show':''}"></div>`;
+   const fb=d.querySelector('.feedback');
+   if(st.locked){
+     if(st.answer===q.correct){
+       if(q.correct) fb.textContent='Верно.';
+       else if(st.whyDone) fb.textContent='Верно: объяснение в банке ошибочно, причина определена правильно.';
+       else fb.textContent='Да, объяснение неверно. Теперь укажи, что именно неверно.';
+     } else fb.textContent='Проверь ещё раз: выбор не совпадает с ключом.';
+   }
+   const buttons=d.querySelectorAll('.actions button');
+   buttons.forEach(b=>{
+     if(st.locked) b.disabled=true;
+     b.onclick=()=>{
+       if(st.locked)return;
+       st.answer=b.dataset.a==='1'; st.locked=true; render();
+     };
+   });
+   const wb=d.querySelector('.whybox');
+   if(!q.correct && st.answer===false && st.locked){
+     wb.innerHTML='<div class="whylabel">Почему неверно?</div>';
+     distractors(q.why).forEach(opt=>{
+       const b=document.createElement('button'); b.className='whyopt'; b.textContent=opt;
+       if(st.whyDone) b.disabled=true;
+       b.onclick=()=>{
+         if(st.whyDone)return;
+         if(opt===q.why){st.whyDone=true; b.classList.add('good'); setTimeout(render,250)}
+         else{b.classList.add('bad'); setTimeout(()=>b.classList.remove('bad'),450)}
+       };
+       wb.appendChild(b);
+     });
+   }
+   host.appendChild(d);
+ });
+ const s=state[current]; const earned=s.filter((st,i)=>st.answer===slides[current][i].correct && (slides[current][i].correct || st.whyDone)).length;
+ const attempted=s.filter(st=>st.locked).length;
+ document.getElementById('score').textContent=`${earned}/${attempted}`;
+ document.getElementById('prev').disabled=current===0;
+ document.getElementById('next').disabled=current===slides.length-1;
+ const allDone=state.every((sl,si)=>sl.every((st,i)=>st.answer===slides[si][i].correct && (slides[si][i].correct || st.whyDone)));
+ const done=document.getElementById('done');
+ done.className='done'+(allDone?' show':'');
+ if(allDone) done.textContent='Готово: весь блок пройден.';
+}
+document.getElementById('prev').onclick=()=>{if(current>0){current--;render()}};
+document.getElementById('next').onclick=()=>{if(current<slides.length-1){current++;render()}};
+document.getElementById('reset').onclick=()=>{state[current]=slides[current].map(()=>({answer:null,whyDone:false,locked:false}));render()};
+render();
+</script>
+</body>
+</html>
